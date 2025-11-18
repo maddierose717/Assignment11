@@ -210,12 +210,33 @@ class AbstractCalculation:
 class Calculation(Base, AbstractCalculation):
     """
     Base calculation model with polymorphic configuration.
-    ...
+    
+    This class combines SQLAlchemy's Base with our AbstractCalculation mixin
+    and configures polymorphic inheritance through __mapper_args__.
+    
+    Polymorphic Configuration:
+    - polymorphic_on: Specifies the discriminator column (type)
+    - polymorphic_identity: The value stored for this base class
+    
+    When querying Calculation, SQLAlchemy automatically:
+    1. Reads the 'type' column value
+    2. Determines the appropriate subclass
+    3. Returns an instance of that subclass
     """
     __mapper_args__ = {
         "polymorphic_on": "type",
         "polymorphic_identity": "calculation",
     }
+    
+    @property
+    def a(self) -> float:
+        """First operand (for assignment compatibility)"""
+        return self.inputs[0] if self.inputs and len(self.inputs) > 0 else None
+    
+    @property
+    def b(self) -> float:
+        """Second operand (for assignment compatibility)"""
+        return self.inputs[1] if self.inputs and len(self.inputs) > 1 else None
 
 
 class Addition(Calculation):
@@ -359,16 +380,3 @@ class Division(Calculation):
                 raise ValueError("Cannot divide by zero.")
             result /= value
         return result
-    @property
-    def a(self) -> float:
-        """First operand - returns first element of inputs list"""
-        if not self.inputs or len(self.inputs) < 2:
-            raise ValueError("Inputs must have at least 2 elements")
-        return self.inputs[0]
-    
-    @property
-    def b(self) -> float:
-        """Second operand - returns second element of inputs list"""
-        if not self.inputs or len(self.inputs) < 2:
-            raise ValueError("Inputs must have at least 2 elements")
-        return self.inputs[1]
