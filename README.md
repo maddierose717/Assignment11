@@ -262,3 +262,20 @@ Then submit the GitHub repository link as instructed.
 - [Python Downloads](https://www.python.org/downloads/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [GitHub SSH Setup Guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+Module 11 Additions
+
+
+Added a and b properties to the Calculation model for simpler operand access.
+
+
+Added CalculationCreateSimple schema with a/b fields and division-by-zero validation.
+
+
+Updated validation logic to support both inputs and a/b styles.
+
+
+Added new unit + integration tests for schemas, model behavior, and DB operations.
+
+
+CI runs with PostgreSQL to verify everything passes.
+
