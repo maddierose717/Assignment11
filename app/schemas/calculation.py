@@ -294,18 +294,12 @@ class CalculationCreateSimple(BaseModel):
     type: CalculationType = Field(..., description="Operation type")
     user_id: UUID = Field(..., description="User ID")
 
-    @field_validator('b')
-    @classmethod
-    def validate_no_division_by_zero(cls, v, info):
-        """Prevent division by zero"""
-        # Check if we have the type field in the data
-        if hasattr(info, 'data') and 'type' in info.data:
-            calc_type = info.data.get('type')
-            # Handle both enum and string
-            if calc_type == 'division' or calc_type == CalculationType.DIVISION:
-                if v == 0:
-                    raise ValueError("Cannot divide by zero")
-        return v
+    @model_validator(mode='after')
+    def validate_division_by_zero(self):
+        """Prevent division by zero for division operations"""
+        if self.type == CalculationType.DIVISION and self.b == 0:
+            raise ValueError("Cannot divide by zero")
+        return self
 
     def to_calculation_create(self) -> CalculationCreate:
         """Convert to standard CalculationCreate format"""
