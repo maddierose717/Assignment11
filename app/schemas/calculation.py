@@ -298,9 +298,13 @@ class CalculationCreateSimple(BaseModel):
     @classmethod
     def validate_no_division_by_zero(cls, v, info):
         """Prevent division by zero"""
-        data = info.data
-        if 'type' in data and data['type'] == CalculationType.DIVISION and v == 0:
-            raise ValueError("Cannot divide by zero")
+        # Check if we have the type field in the data
+        if hasattr(info, 'data') and 'type' in info.data:
+            calc_type = info.data.get('type')
+            # Handle both enum and string
+            if calc_type == 'division' or calc_type == CalculationType.DIVISION:
+                if v == 0:
+                    raise ValueError("Cannot divide by zero")
         return v
 
     def to_calculation_create(self) -> CalculationCreate:
