@@ -364,3 +364,65 @@ def test_polymorphic_method_calling():
         result = calc.get_result()
         assert result == expected, \
             f"{calc_type} failed: expected {expected}, got {result}"
+# ============================================================================
+# Tests for Module 11: a and b Properties
+# ============================================================================
+
+def test_calculation_a_property():
+    """
+    Test that the 'a' property returns the first operand.
+    
+    Module 11 requirement: Calculations should have 'a' and 'b' properties
+    for accessing the first two operands.
+    """
+    inputs = [20.0, 8.0, 3.0]
+    calc = Addition(user_id=dummy_user_id(), inputs=inputs)
+    assert calc.a == 20.0, f"Expected a=20.0, got {calc.a}"
+
+
+def test_calculation_b_property():
+    """
+    Test that the 'b' property returns the second operand.
+    """
+    inputs = [20.0, 8.0, 3.0]
+    calc = Subtraction(user_id=dummy_user_id(), inputs=inputs)
+    assert calc.b == 8.0, f"Expected b=8.0, got {calc.b}"
+
+
+def test_a_and_b_properties_all_types():
+    """
+    Test that a and b properties work for all calculation types.
+    
+    This verifies that the properties are defined on the base Calculation
+    class and inherited by all subclasses.
+    """
+    user_id = dummy_user_id()
+    inputs = [15.0, 5.0]
+    
+    # Test each calculation type
+    calc_types = [
+        ('addition', Addition),
+        ('subtraction', Subtraction),
+        ('multiplication', Multiplication),
+        ('division', Division),
+    ]
+    
+    for calc_type, calc_class in calc_types:
+        calc = Calculation.create(calc_type, user_id, inputs)
+        assert isinstance(calc, calc_class)
+        assert calc.a == 15.0, f"{calc_type}: Expected a=15.0, got {calc.a}"
+        assert calc.b == 5.0, f"{calc_type}: Expected b=5.0, got {calc.b}"
+
+
+def test_a_b_with_factory_pattern():
+    """
+    Test that calculations created via factory have working a and b properties.
+    
+    This ensures the factory pattern and property accessors work together.
+    """
+    user_id = dummy_user_id()
+    
+    calc = Calculation.create('multiplication', user_id, [7.0, 3.0])
+    assert calc.a == 7.0
+    assert calc.b == 3.0
+    assert calc.get_result() == 21.0
