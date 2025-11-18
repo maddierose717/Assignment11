@@ -232,3 +232,63 @@ def test_divide_by_zero() -> None:
     # Assert that the exception message contains the expected error message
     assert "Cannot divide by zero!" in str(excinfo.value), \
         f"Expected error message 'Cannot divide by zero!', but got '{excinfo.value}'"
+# ---------------------------------------------
+# Module 11: Tests for CalculationCreateSimple Schema
+# ---------------------------------------------
+
+from pydantic import ValidationError
+from app.schemas.calculation import CalculationCreateSimple, CalculationType
+from uuid import uuid4
+
+
+class TestCalculationCreateSimple:
+    """Test the simple a/b schema for Module 11"""
+    
+    def test_valid_addition(self):
+        """Test valid addition creation"""
+        data = {
+            "a": 10.0,
+            "b": 5.0,
+            "type": "addition",
+            "user_id": str(uuid4())
+        }
+        calc = CalculationCreateSimple(**data)
+        assert calc.a == 10.0
+        assert calc.b == 5.0
+        assert calc.type == CalculationType.ADDITION
+    
+    def test_valid_subtraction(self):
+        """Test valid subtraction"""
+        data = {
+            "a": 20.0,
+            "b": 8.0,
+            "type": "subtraction",
+            "user_id": str(uuid4())
+        }
+        calc = CalculationCreateSimple(**data)
+        assert calc.a == 20.0
+        assert calc.b == 8.0
+    
+    def test_division_by_zero_rejected(self):
+        """Test division by zero is rejected"""
+        data = {
+            "a": 10.0,
+            "b": 0.0,
+            "type": "division",
+            "user_id": str(uuid4())
+        }
+        with pytest.raises(ValidationError) as exc:
+            CalculationCreateSimple(**data)
+        assert "divide by zero" in str(exc.value).lower()
+    
+    def test_converts_to_calculation_create(self):
+        """Test conversion to standard format"""
+        simple = CalculationCreateSimple(
+            a=10.0,
+            b=5.0,
+            type="addition",
+            user_id=uuid4()
+        )
+        standard = simple.to_calculation_create()
+        assert standard.inputs == [10.0, 5.0]
+        assert standard.type == CalculationType.ADDITION
