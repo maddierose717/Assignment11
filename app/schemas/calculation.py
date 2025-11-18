@@ -279,3 +279,45 @@ class CalculationResponse(CalculationBase):
             }
         }
     )
+# Add this at the end of app/schemas/calculation.py
+
+class CalculationCreateSimple(BaseModel):
+    """
+    Alternative schema for creating calculations with a and b fields.
+    
+    This schema provides a simpler interface for two-operand calculations,
+    as required by the assignment. It's converted to the standard inputs
+    format internally.
+    """
+    a: float = Field(..., description="First operand")
+    b: float = Field(..., description="Second operand")
+    type: CalculationType = Field(..., description="Operation type")
+    user_id: UUID = Field(..., description="User ID")
+
+    @field_validator('b')
+    @classmethod
+    def validate_no_division_by_zero(cls, v, info):
+        """Prevent division by zero"""
+        data = info.data
+        if 'type' in data and data['type'] == CalculationType.DIVISION and v == 0:
+            raise ValueError("Cannot divide by zero")
+        return v
+
+    def to_calculation_create(self) -> CalculationCreate:
+        """Convert to standard CalculationCreate format"""
+        return CalculationCreate(
+            user_id=self.user_id,
+            type=self.type,
+            inputs=[self.a, self.b]
+        )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "a": 10.5,
+                "b": 3.2,
+                "type": "addition",
+                "user_id": "123e4567-e89b-12d3-a456-426614174000"
+            }
+        }
+    )
