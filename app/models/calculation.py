@@ -210,18 +210,7 @@ class AbstractCalculation:
 class Calculation(Base, AbstractCalculation):
     """
     Base calculation model with polymorphic configuration.
-    
-    This class combines SQLAlchemy's Base with our AbstractCalculation mixin
-    and configures polymorphic inheritance through __mapper_args__.
-    
-    Polymorphic Configuration:
-    - polymorphic_on: Specifies the discriminator column (type)
-    - polymorphic_identity: The value stored for this base class
-    
-    When querying Calculation, SQLAlchemy automatically:
-    1. Reads the 'type' column value
-    2. Determines the appropriate subclass
-    3. Returns an instance of that subclass
+    ...
     """
     __mapper_args__ = {
         "polymorphic_on": "type",
